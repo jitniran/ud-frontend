@@ -29,20 +29,20 @@
         </header>
         <div class="mdl-layout__drawer">
         <span class="mdl-layout-title">Title</span>
-        <nav class="mdl-navigation">
-            <a class="mdl-navigation__link" href="">Link</a>
-            <a class="mdl-navigation__link" href="">Link</a>
-            <a class="mdl-navigation__link" href="">Link</a>
-            <a class="mdl-navigation__link" href="">Link</a>
-            <a href="https://developer.foursquare.com/">Powered by Foursquare</a>
+        <nav class="mdl-navigation" data-bind="foreach: places">
+            <a class="mdl-navigation__link" data-bind="text: $data.title"></a>
         </nav>
+        <a href="https://developer.foursquare.com/">Powered by Foursquare</a>
         </div>
         <main class="mdl-layout__content">
-            <div class="page-content"><!-- Your content goes here --></div>
+            <div id="post" class="page-content"><!-- Your content goes here --></div>
         </main>
     </div>
     <script src="js/lib/knockout-3.2.0.js"></script>
     <script src="js/lib/jquery-3.2.1.min.js"></script>
     <script async defer src="https://code.getmdl.io/1.0.6/material.min.js"></script>
     <script src="js/app.js"></script>
-</body>
+    <script>
+        console.log('hi')
+    </script>
+</body> 
