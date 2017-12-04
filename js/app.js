@@ -128,7 +128,7 @@ function populateInfoWindow(place, infowindow) {
  */
 function wikiApi(title) {
 
-    info = {}
+    let info = {}
     $.getJSON('https://en.wikipedia.org/w/api.php?action=opensearch&origin=*'+
               '&format=json&namespace=0&search=' + title,function(data) {
         info['summary'] = data[2][0];
