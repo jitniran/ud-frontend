@@ -26,6 +26,7 @@ var Place = function(id, title, location, category) {
         title: self.title(),
         id: self.id()
     });
+    // this.wikiInfo = wikiApi(this.title());
     this.marker.addListener('click', function() {
         populateInfoWindow(self, largeInfoWindow);
     });
@@ -42,8 +43,9 @@ var viewModel = function() {
     self.markers = ko.observableArray();
     self.selectedCategory = ko.observable();
     self.categories = ko.observable(['park', 'sightseeing']);
+    // animation
     self.toggle = function(marker) {
-        toggleBounce(marker);
+        toggleDrop(marker);
     };
     for(let i = 0; i < locations.length; i++){
         let loc = locations[i];
@@ -75,6 +77,8 @@ function filterPlaces(place) {
 }
 /**
  * @description returns places of a category
+ * @param {place} places
+ * @param {bound} bounds
  */
 function makeMarker(places, bounds) {
     
@@ -95,16 +99,20 @@ function removeMarker() {
 
 /**
  * @description function to populate to set infowindow to null
- * @param {*} place 
- * @param {*} infowindow 
+ * @param {place custom class} place 
+ * @param {google infowindow} infowindow 
  */
 function populateInfoWindow(place, infowindow) {
     
     let marker = place.marker;
-    
+    var wiki = wikiApi(place.title());
+    console.log('hello ' + wiki['summary']);
     if (infowindow.marker != marker) {
         infowindow.marker = marker;
-        infowindow.setContent('<div>' + marker.title + '</div>');
+        content = '<div>' + marker.title + '</div>' +
+                  '<div>' + wiki.summary + '</div>' +
+                  '<a href="' + wiki.link + '">Read More</a>' 
+        infowindow.setContent(content);
         infowindow.open(map,marker);
 
         infowindow.addListener('closeclick',function(){
@@ -114,15 +122,33 @@ function populateInfoWindow(place, infowindow) {
 }
 
 /**
- * @description function to toggle google marker
- * @param {*} marker 
+ * @description takes place string returns summary and link
+ * @param {String} title 
+ * @returns {dict} info
  */
-function toggleBounce(marker) {
-    if (marker.getAnimation() !== null) {
-      marker.setAnimation(null);
-    } else {
+function wikiApi(title) {
+
+    info = {}
+    $.getJSON('https://en.wikipedia.org/w/api.php?action=opensearch&origin=*'+
+              '&format=json&namespace=0&search=' + title,function(data) {
+        info['summary'] = data[2][0];
+        info['link'] = data[3][0];
+        console.log(data[2][0]);
+    })
+    .fail(function() {
+        info['summary'] = "Unable to fecth wikipedia info, please try again"
+        info['link'] = ""
+    });
+    
+   return info;
+}
+
+/**
+ * @description function to toggle google marker
+ * @param {google marker} marker 
+ */
+function toggleDrop(marker) {
       marker.setAnimation(google.maps.Animation.DROP);
-    }
   }
 
 
