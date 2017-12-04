@@ -28,21 +28,20 @@
             </div>
         </header>
         <div class="mdl-layout__drawer">
-        <span class="mdl-layout-title">Places</span>
-        <select data-bind="options: categories,
-                           value: selectedCategory,
-                           optionsCaption: 'Choose a Category...',
-                           click: updateMarkers()">
-        </select>
-        <div class="mdl-navigation" data-bind="foreach: markers">
-            <a id="place" class="mdl-navigation__link" data-bind="text: $data.title,
-                                                       click: $parent.toggle($data.marker), clickBubble: false">
-            </a>
+            <span class="mdl-layout-title">Places</span>
+            <select data-bind="options: categories,
+                            value: selectedCategory,
+                            optionsCaption: 'Choose a Category...',
+                            click: updateMarkers()">
+            </select>
+            <div class="mdl-navigation" data-bind="foreach: markers">
+                <a id="place" class="mdl-navigation__link" data-bind="text: $data.title,
+                                                        click: $parent.toggle($data.marker), clickBubble: false">
+                </a>
+            </div>
+            <a href="https://www.mediawiki.org/wiki/API:Main_page">Powered by Wikipedia</a>
         </div>
-        <a href="https://www.mediawiki.org/wiki/API:Main_page">Powered by Wikipedia</a>
-        </div>
-            <div id="map"><!-- map goes here --></div>
-        </div>
+        <div id="map"><!-- map goes here --></div>
     </div>
     <script src="js/lib/knockout-3.2.0.js"></script>
     <script src="js/lib/jquery-3.2.1.min.js"></script>
