@@ -28,7 +28,7 @@ var Place = function(id, title, location, category) {
     });
     // this.wikiInfo = wikiApi(this.title());
     this.marker.addListener('click', function() {
-        populateInfoWindow(self, largeInfoWindow);
+        wikiApi(self.title(), self.marker, largeInfoWindow);
         toggleDrop(this);
     });
 };
@@ -100,19 +100,18 @@ function removeMarker() {
 
 /**
  * @description function to populate to set infowindow to null
- * @param {place custom class} place 
+ * @param {dict} info 
+ * @param {String} title
+ * @param {google marker} marker
  * @param {google infowindow} infowindow 
  */
-function populateInfoWindow(place, infowindow) {
+function populateInfoWindow(info, title, marker, infowindow) {
     
-    let marker = place.marker;
-    var wiki = wikiApi(place.title());
-    console.log('hello ' + wiki['summary']);
     if (infowindow.marker != marker) {
         infowindow.marker = marker;
         content = '<div>' + marker.title + '</div>' +
-                  '<div>' + wiki.summary + '</div>' +
-                  '<a href="' + wiki.link + '">Read More</a>' 
+                  '<div>' + info.summary + '</div>' +
+                  '<a href="' + info.link + '">Read More</a>' 
         infowindow.setContent(content);
         infowindow.open(map,marker);
 
@@ -125,23 +124,26 @@ function populateInfoWindow(place, infowindow) {
 /**
  * @description takes place string returns summary and link
  * @param {String} title 
- * @returns {dict} info
+ * @param {google marker} marker
+ * @param {google infoWindow} infoWindow
  */
-function wikiApi(title) {
+function wikiApi(title,marker,infoWindow) {
 
     let info = {}
     $.getJSON('https://en.wikipedia.org/w/api.php?action=opensearch&origin=*'+
-              '&format=json&namespace=0&search=' + title,function(data) {
-        info['summary'] = data[2][0];
-        info['link'] = data[3][0];
-        console.log(data[2][0]);
+              '&format=json&namespace=0&search=' + title, function(data) {
+                info['summary'] = data[2][0];
+                info['link'] = data[3][0];
+              })
+    .done(function() {
+        console.log(info);
+        populateInfoWindow(info,title, marker, infoWindow);
     })
     .fail(function() {
-        info['summary'] = "Unable to fecth wikipedia info, please try again"
-        info['link'] = ""
+        info['summary'] = "Unable to fecth wikipedia info, please try again";
+        info['link'] = "";
+        populateInfoWindow(info,title, marker, infoWindow);
     });
-    
-   return info;
 }
 
 /**
