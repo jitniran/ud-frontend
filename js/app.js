@@ -42,13 +42,8 @@ var viewModel = function() {
     self.markers = ko.observableArray();
     self.selectedCategory = ko.observable();
     self.categories = ko.observable(['park', 'sightseeing']);
-    // store id for list view
-    self.currentPlace = ko.observable();
-    self.setCurrentPlace = function (id) {
-        if(self.currentPlace()) {
-            self.currentPlace = id;
-            
-        }
+    self.toggle = function(marker) {
+        toggleBounce(marker);
     };
     for(let i = 0; i < locations.length; i++){
         let loc = locations[i];
@@ -126,7 +121,7 @@ function toggleBounce(marker) {
     if (marker.getAnimation() !== null) {
       marker.setAnimation(null);
     } else {
-      marker.setAnimation(google.maps.Animation.BOUNCE);
+      marker.setAnimation(google.maps.Animation.DROP);
     }
   }
 
