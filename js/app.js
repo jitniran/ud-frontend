@@ -1,15 +1,10 @@
-const CLIENT_ID='ZNK3ACT3GRFA3XLI4DU5DXUO4KZQD1FIG3C3VYCCYYKAEU3D';
-const CLIENT_SECRET='4JSVCSCAX20HISJERKX4FJGIZS1WFDMXA1VTHF5LQPZK30BP';
-const version=20170101;
 const locations = [
-    {title: 'Park Ave Penthouse', location: {lat: 40.7713024, lng: -73.9632393}},
-    {title: 'Chelsea Loft', location: {lat: 40.7444883, lng: -73.9949465}},
-    {title: 'Union Square Open Floor Plan', location: {lat: 40.7347062, lng: -73.9895759}},
-    {title: 'East Village Hip Studio', location: {lat: 40.7281777, lng: -73.984377}},
-    {title: 'TriBeCa Artsy Bachelor Pad', location: {lat: 40.7195264, lng: -74.0089934}},
-    {title: 'Chinatown Homey Space', location: {lat: 40.7180628, lng: -73.9961237}}
+    {title: 'Vidhana Soudha', location: {lat: 12.9795, lng: 77.5909}},
+    {title: 'Lal Bagh', location: {lat: 12.9507, lng: 77.5848}},
+    {title: 'Bangalore Fort', location: {lat: 12.9629, lng: 77.5760}},
+    {title: 'Bangalore Palace', location: {lat: 12.9987, lng: 77.5920}},
     ];
-let data = {};
+let map, largeInfoWindow ,bounds;
 
 
 /**
@@ -19,9 +14,23 @@ let data = {};
 * @param {number} id
 */
 var Place = function(id, title, location) {
+    let self = this;
     this.id = ko.observable();
     this.title = ko.observable(title);
     this.location = ko.observable(location);
+    this.marker = new google.maps.Marker({
+        position: self.location(),
+        title: self.title(),
+        id: self.id()
+    });
+    this.marker.addListener('click', function() {
+        populateInfoWindow(this, largeInfoWindow)
+        toggleBounce(this);
+    });
+    this.toggle = function() {
+        toggleBounce(self.marker);
+    };
+
 };
 
 
@@ -33,39 +42,87 @@ var viewModel = function() {
     let self = this;
     self.places = ko.observableArray();
     self.markers = ko.observableArray();
-    self.selectedCountry = ko.observable();
+    self.selectedPlace = ko.observable();
     for(let i = 0; i < locations.length; i++){
         let loc = locations[i];
         var place = new Place(0, loc.title, loc.location);
         self.places.push(place);
     }
     self.markers = ko.observableArray()
-    // TODO: make a function which filters place
+
+    // TODO: a function which filters place updates map
     self.updateMarkers = function() {
-        if(typeof self.selectedCountry() === "undefined"  ){
+        let bounds = new google.maps.LatLngBounds();
+        if(self.selectedPlace()) {
+            self.markers.removeAll();
+            self.markers().push(self.selectedPlace());
+            let marker = self.selectedPlace().marker;
+            marker.setMap(map);
+            bounds.extend(marker.position);
+        }else {
             self.markers.removeAll();
             self.places().forEach(function(place) {
                 self.markers().push(place);
+                place.marker.setMap(map)
+                bounds.extend(place.marker.position);
             }, this);
-        }else {
-            self.markers.removeAll();
-            self.markers().push(self.selectedCountry());
         }
+        map.fitBounds(bounds);
     }
 }
-myViewModel = new viewModel();   
-ko.applyBindings(myViewModel);
-myViewModel.markers.extend({ rateLimit: 50 });
-// data['client_id'] = CLIENT_ID;
-// data['client_secret'] = CLIENT_SECRET;
-// data['v'] = version;
-// data['limit'] = 10;
-// data['section'] = 'topPicks'
-// data['ll'] = '12.9716,77.5946'
-// $.ajax({
-//     url: 'https://api.foursquare.com/v2/venues/explore',
-//     data: data,
-//     success: function(response) {
-//         $('#post').html(response.responseText);
-//     }
-// });
+/**
+ * @description function to populate to set infowindow to null
+ * @param {*} marker 
+ * @param {*} infowindow 
+ */
+function populateInfoWindow(place, infowindow) {
+    
+    let marker = place.marker;
+    if (infowindow.marker != marker) {
+        infowindow.marker = marker;
+        infowindow.setContent('<div>' + marker.title + '</div>');
+        infowindow.open(map,marker);
+
+        infowindow.addListener('closeclick',function(){
+            infowindow.marker = null;
+        });
+    }
+}
+
+/**
+ * @description function to toggle google marker
+ * @param {*} marker 
+ */
+function toggleBounce(marker) {
+    if (marker.getAnimation() !== null) {
+      marker.setAnimation(null);
+    } else {
+      marker.setAnimation(google.maps.Animation.BOUNCE);
+    }
+  }
+
+
+
+/**
+ * @description call back function when maps is loaded
+ */
+window.initMap = function () {
+
+    // remove spinner
+    // $('#spinner').remove();
+    // initialize a map object 
+    map = new google.maps.Map(document.getElementById('map'), {
+        center : {lat: 12.9716,lng: 77.5946 },
+        zoom: 13
+    });
+    // initialize infowindow
+    largeInfoWindow = new google.maps.InfoWindow();
+
+    //initialize bounds
+    bounds = new google.maps.LatLngBounds();
+
+    // TODO: make a new view 
+    myViewModel = new viewModel();   
+    ko.applyBindings(myViewModel);
+    myViewModel.markers.extend({ rateLimit: 50 });
+}

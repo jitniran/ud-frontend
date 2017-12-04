@@ -31,21 +31,25 @@
         <span class="mdl-layout-title">Places</span>
         <select data-bind="options: places,
                            optionsText: 'title',
-                           value: selectedCountry,
+                           value: selectedPlace,
                            optionsCaption: 'Choose a Place...',
-                           click: updateMarkers(selectedCountry)">
+                           click: updateMarkers()">
         </select>
         <nav class="mdl-navigation" data-bind="foreach: markers">
-            <a class="mdl-navigation__link" data-bind="text: $data.title"></a>
+            <a class="mdl-navigation__link" data-bind="text: $data.title,
+                                                       click: toggle()">
+            </a>
         </nav>
-        <a href="https://developer.foursquare.com/">Powered by Foursquare</a>
+        <a href="https://www.mediawiki.org/wiki/API:Main_page">Powered by Wikipedia</a>
         </div>
-        <main class="mdl-layout__content">
-            <div id="post" class="page-content"><!-- Your content goes here --></div>
-        </main>
+            <div id="map"><!-- map goes here --></div>
+        </div>
     </div>
     <script src="js/lib/knockout-3.2.0.js"></script>
     <script src="js/lib/jquery-3.2.1.min.js"></script>
     <script async defer src="https://code.getmdl.io/1.0.6/material.min.js"></script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBC1c2PUaiOCAvTYe07lZ43mrUqKS7FhyE&v=3&callback=initMap">
+    </script>
     <script src="js/app.js"></script>
 </body> 
