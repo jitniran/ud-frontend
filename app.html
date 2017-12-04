@@ -29,15 +29,14 @@
         </header>
         <div class="mdl-layout__drawer">
         <span class="mdl-layout-title">Places</span>
-        <select data-bind="options: places,
-                           optionsText: 'title',
-                           value: selectedPlace,
-                           optionsCaption: 'Choose a Place...',
+        <select data-bind="options: categories,
+                           value: selectedCategory,
+                           optionsCaption: 'Choose a Category...',
                            click: updateMarkers()">
         </select>
         <nav class="mdl-navigation" data-bind="foreach: markers">
-            <a class="mdl-navigation__link" data-bind="text: $data.title,
-                                                       click: toggle()">
+            <a id="place" class="mdl-navigation__link" data-bind="text: $data.title,
+                                                       click: toggle(), clickBubble: false">
             </a>
         </nav>
         <a href="https://www.mediawiki.org/wiki/API:Main_page">Powered by Wikipedia</a>

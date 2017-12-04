@@ -1,8 +1,9 @@
 const locations = [
-    {title: 'Vidhana Soudha', location: {lat: 12.9795, lng: 77.5909}},
-    {title: 'Lal Bagh', location: {lat: 12.9507, lng: 77.5848}},
-    {title: 'Bangalore Fort', location: {lat: 12.9629, lng: 77.5760}},
-    {title: 'Bangalore Palace', location: {lat: 12.9987, lng: 77.5920}},
+    {title: 'Vidhana Soudha', location: {lat: 12.9795, lng: 77.5909}, cat: 'sightseeing'},
+    {title: 'Lal Bagh', location: {lat: 12.9507, lng: 77.5848}, cat: 'park'},
+    {title: 'Bangalore Fort', location: {lat: 12.9629, lng: 77.5760}, cat: 'sightseeing'},
+    {title: 'Bangalore Palace', location: {lat: 12.9987, lng: 77.5920}, cat: 'sightseeing'},
+    {title: 'Cubbon Park', location: {lat: 12.9763, lng: 77.5929}, cat:'park'},
     ];
 let map, largeInfoWindow ,bounds;
 
@@ -12,25 +13,22 @@ let map, largeInfoWindow ,bounds;
 * @param {String} title
 * @param {dict} location
 * @param {number} id
+* @param {String} category
 */
-var Place = function(id, title, location) {
+var Place = function(id, title, location, category) {
     let self = this;
-    this.id = ko.observable();
+    this.id = ko.observable(id);
     this.title = ko.observable(title);
     this.location = ko.observable(location);
+    this.category = ko.observable(category);
     this.marker = new google.maps.Marker({
         position: self.location(),
         title: self.title(),
         id: self.id()
     });
     this.marker.addListener('click', function() {
-        populateInfoWindow(this, largeInfoWindow)
-        toggleBounce(this);
+        populateInfoWindow(self, largeInfoWindow);
     });
-    this.toggle = function() {
-        toggleBounce(self.marker);
-    };
-
 };
 
 
@@ -42,10 +40,19 @@ var viewModel = function() {
     let self = this;
     self.places = ko.observableArray();
     self.markers = ko.observableArray();
-    self.selectedPlace = ko.observable();
+    self.selectedCategory = ko.observable();
+    self.categories = ko.observable(['park', 'sightseeing']);
+    // store id for list view
+    self.currentPlace = ko.observable();
+    self.setCurrentPlace = function (id) {
+        if(self.currentPlace()) {
+            self.currentPlace = id;
+            
+        }
+    };
     for(let i = 0; i < locations.length; i++){
         let loc = locations[i];
-        var place = new Place(0, loc.title, loc.location);
+        var place = new Place(0, loc.title, loc.location, loc.cat);
         self.places.push(place);
     }
     self.markers = ko.observableArray()
@@ -53,31 +60,53 @@ var viewModel = function() {
     // TODO: a function which filters place updates map
     self.updateMarkers = function() {
         let bounds = new google.maps.LatLngBounds();
-        if(self.selectedPlace()) {
-            self.markers.removeAll();
-            self.markers().push(self.selectedPlace());
-            let marker = self.selectedPlace().marker;
-            marker.setMap(map);
-            bounds.extend(marker.position);
+        removeMarker();
+        if(self.selectedCategory()) {
+            let places = ko.observableArray(self.places().filter(filterPlaces));
+            bounds =  makeMarker(places , bounds);
         }else {
-            self.markers.removeAll();
-            self.places().forEach(function(place) {
-                self.markers().push(place);
-                place.marker.setMap(map)
-                bounds.extend(place.marker.position);
-            }, this);
+            bounds = makeMarker(self.places, bounds);
         }
         map.fitBounds(bounds);
-    }
+    }   
+}
+
+/**
+ * @description filters places according to category
+ * @param {place} place 
+ */
+function filterPlaces(place) {
+    return place.category() == myViewModel.selectedCategory();
 }
 /**
+ * @description returns places of a category
+ */
+function makeMarker(places, bounds) {
+    
+    places().forEach(function(place) {
+        myViewModel.markers().push(place);
+        place.marker.setMap(map);
+        bounds.extend(place.marker.position);
+    }, this);
+    return bounds;
+}
+
+function removeMarker() {
+    myViewModel.markers().forEach(function(place) {
+        place.marker.setMap(null);
+    }, this);
+    myViewModel.markers.removeAll();
+}
+
+/**
  * @description function to populate to set infowindow to null
- * @param {*} marker 
+ * @param {*} place 
  * @param {*} infowindow 
  */
 function populateInfoWindow(place, infowindow) {
     
     let marker = place.marker;
+    
     if (infowindow.marker != marker) {
         infowindow.marker = marker;
         infowindow.setContent('<div>' + marker.title + '</div>');
@@ -100,7 +129,6 @@ function toggleBounce(marker) {
       marker.setAnimation(google.maps.Animation.BOUNCE);
     }
   }
-
 
 
 /**
