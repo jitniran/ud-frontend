@@ -29,6 +29,7 @@ var Place = function(id, title, location, category) {
     // this.wikiInfo = wikiApi(this.title());
     this.marker.addListener('click', function() {
         populateInfoWindow(self, largeInfoWindow);
+        toggleDrop(this);
     });
 };
 
