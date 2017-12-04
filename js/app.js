@@ -152,8 +152,14 @@ function wikiApi(title,marker,infoWindow) {
  */
 function toggleDrop(marker) {
       marker.setAnimation(google.maps.Animation.DROP);
-  }
+}
 
+/**
+ * @description handle map not loaded error
+ */
+function mapNotLoaded() {
+    alert("Map not loaded.Please try again ");
+}
 
 /**
  * @description call back function when maps is loaded
