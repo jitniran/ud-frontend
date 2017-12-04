@@ -37,7 +37,7 @@ var Place = function(id, title, location, category) {
 /**
  * @description view model of the page
  */
-var viewModel = function() {
+var ViewModel = function() {
     // TODO: make new places and add to a list
     let self = this;
     self.places = ko.observableArray();
@@ -172,7 +172,7 @@ window.initMap = function () {
     bounds = new google.maps.LatLngBounds();
 
     // TODO: make a new view 
-    myViewModel = new viewModel();   
+    myViewModel = new ViewModel();   
     ko.applyBindings(myViewModel);
     myViewModel.markers.extend({ rateLimit: 50 });
 }
