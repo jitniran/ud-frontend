@@ -32,13 +32,30 @@ var viewModel = function() {
     // TODO: make new places and add to a list
     let self = this;
     self.places = ko.observableArray();
+    self.markers = ko.observableArray();
+    self.selectedCountry = ko.observable();
     for(let i = 0; i < locations.length; i++){
         let loc = locations[i];
         var place = new Place(0, loc.title, loc.location);
         self.places.push(place);
     }
+    self.markers = ko.observableArray()
+    // TODO: make a function which filters place
+    self.updateMarkers = function() {
+        if(typeof self.selectedCountry() === "undefined"  ){
+            self.markers.removeAll();
+            self.places().forEach(function(place) {
+                self.markers().push(place);
+            }, this);
+        }else {
+            self.markers.removeAll();
+            self.markers().push(self.selectedCountry());
+        }
+    }
 }
-ko.applyBindings(new viewModel());
+myViewModel = new viewModel();   
+ko.applyBindings(myViewModel);
+myViewModel.markers.extend({ rateLimit: 50 });
 // data['client_id'] = CLIENT_ID;
 // data['client_secret'] = CLIENT_SECRET;
 // data['v'] = version;
