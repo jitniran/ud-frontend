@@ -1,12 +1,4 @@
-const locations = [
-    {title: 'Vidhana Soudha', location: {lat: 12.9795, lng: 77.5909}, cat: 'sightseeing'},
-    {title: 'Lal Bagh', location: {lat: 12.9507, lng: 77.5848}, cat: 'park'},
-    {title: 'Bangalore Fort', location: {lat: 12.9629, lng: 77.5760}, cat: 'sightseeing'},
-    {title: 'Bangalore Palace', location: {lat: 12.9987, lng: 77.5920}, cat: 'sightseeing'},
-    {title: 'Cubbon Park', location: {lat: 12.9763, lng: 77.5929}, cat:'park'},
-    ];
 let map, largeInfoWindow ,bounds;
-
 
 /**
 * @description make a place object
@@ -45,8 +37,9 @@ var ViewModel = function() {
     self.selectedCategory = ko.observable();
     self.categories = ko.observable(['park', 'sightseeing']);
     // animation
-    self.toggle = function(marker) {
+    self.toggle = function(title, marker) {
         toggleDrop(marker);
+        wikiApi(title, marker, largeInfoWindow);
     };
     for(let i = 0; i < locations.length; i++){
         let loc = locations[i];
@@ -57,13 +50,13 @@ var ViewModel = function() {
 
     // TODO: a function which filters place updates map
     self.updateMarkers = function() {
-        let bounds = new google.maps.LatLngBounds();
+        // let bounds = new google.maps.LatLngBounds();
         removeMarker();
         if(self.selectedCategory()) {
             let places = ko.observableArray(self.places().filter(filterPlaces));
-            bounds =  makeMarker(places , bounds);
+            makeMarker(places , bounds);
         }else {
-            bounds = makeMarker(self.places, bounds);
+            makeMarker(self.places, bounds);
         }
         map.fitBounds(bounds);
     }   
@@ -88,7 +81,7 @@ function makeMarker(places, bounds) {
         place.marker.setMap(map);
         bounds.extend(place.marker.position);
     }, this);
-    return bounds;
+    // return bounds;
 }
 
 function removeMarker() {
@@ -136,7 +129,6 @@ function wikiApi(title,marker,infoWindow) {
                 info['link'] = data[3][0];
               })
     .done(function() {
-        console.log(info);
         populateInfoWindow(info,title, marker, infoWindow);
     })
     .fail(function() {
@@ -178,6 +170,10 @@ window.initMap = function () {
 
     //initialize bounds
     bounds = new google.maps.LatLngBounds();
+
+    google.maps.event.addDomListener(window, 'resize', function() {
+        map.fitBounds(bounds);
+    });
 
     // TODO: make a new view 
     myViewModel = new ViewModel();   
